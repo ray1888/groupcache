@@ -15,6 +15,13 @@ limitations under the License.
 */
 
 // Package lru implements an LRU cache.
+/*
+实际上，这个是为有限的内存进行控制的方法
+每次单个key被调用的时候，会把元素提到最前
+当超过maxEnties的时候，就会直接运行removeOldest，把最后的元素进行丢弃，所以通过lru的这个方式，
+能够维持在有限数量内使用率最高的那些key
+
+*/
 package lru
 
 import "container/list"
@@ -66,6 +73,7 @@ func (c *Cache) Add(key Key, value interface{}) {
 	ele := c.ll.PushFront(&entry{key, value})
 	c.cache[key] = ele
 	if c.MaxEntries != 0 && c.ll.Len() > c.MaxEntries {
+		// 当添加进去的key数量大于最大存放数的时候，会丢弃最后一个（使用频率最低的key）
 		c.RemoveOldest()
 	}
 }
